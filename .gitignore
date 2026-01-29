@@ -18,3 +18,4 @@ serving_dir
 *.csv
 *.duckdb
 **uv.lock
+02-workflow-orchestration/docker-compose.yml

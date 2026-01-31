@@ -22,43 +22,96 @@ As a hint, Kestra makes that process really easy:
 1. You can leverage the backfill functionality in the [scheduled flow](../../../02-workflow-orchestration/flows/09_gcp_taxi_scheduled.yaml) to backfill the data for the year 2021. Just make sure to select the time period for which data exists i.e. from `2021-01-01` to `2021-07-31`. Also, make sure to do the same for both `yellow` and `green` taxi data (select the right service in the `taxi` input).
 2. Alternatively, run the flow manually for each of the seven months of 2021 for both `yellow` and `green` taxi data. Challenge for you: find out how to loop over the combination of Year-Month and `taxi`-type using `ForEach` task which triggers the flow for each combination using a `Subflow` task.
 
+### Methods I Used to Extract Data
+Option 1 and set time period from `2021-01-01 00:00:00` to `2021-07-31 00:00:00`
+
 ### Quiz Questions
 
 Complete the quiz shown below. It's a set of 6 multiple-choice questions to test your understanding of workflow orchestration, Kestra, and ETL pipelines.
 
 1) Within the execution for `Yellow` Taxi data for the year `2020` and month `12`: what is the uncompressed file size (i.e. the output file `yellow_tripdata_2020-12.csv` of the `extract` task)?
-- 128.3 MiB
+- **128.3 MiB**
 - 134.5 MiB
 - 364.7 MiB
 - 692.6 MiB
 
+Modify code from [scheduled flow](../../../02-workflow-orchestration/flows/09_gcp_taxi_scheduled.yaml):
+
+```yaml
+  - id: extract
+    type: io.kestra.plugin.scripts.shell.Commands
+    outputFiles:
+      - "*.csv"
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    commands:
+      - wget -qO- https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{{inputs.taxi}}/{{render(vars.file)}}.gz | gunzip > {{render(vars.file)}}
+      - ls -lh {{render(vars.file)}}
+```
+
+And we can see an info line under Executions/Logs/extract: `-rw-r--r-- 1 root root 129M Jan 31 04:03 yellow_tripdata_2020-12.csv`
+
+
 2) What is the rendered value of the variable `file` when the inputs `taxi` is set to `green`, `year` is set to `2020`, and `month` is set to `04` during execution?
 - `{{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.csv` 
-- `green_tripdata_2020-04.csv`
+- **`green_tripdata_2020-04.csv`**
 - `green_tripdata_04_2020.csv`
 - `green_tripdata_2020.csv`
 
+"Rendered value" means the final resolved/substituted value after Kestra replaces the {{ }} template expressions with the actual input values.
+
 3) How many rows are there for the `Yellow` Taxi data for all CSV files in the year 2020?
 - 13,537.299
-- 24,648,499
+- **24,648,499**
 - 18,324,219
 - 29,430,127
+
+I run the following SQL query on BigQuery:
+
+``` SQL
+SELECT
+  count(1) 
+FROM 
+  `taxi-rides-ny-454801.zoomcamp.yellow_tripdata` 
+WHERE
+  filename LIKE 'yellow_tripdata_2020%.csv';
+```
+
 
 4) How many rows are there for the `Green` Taxi data for all CSV files in the year 2020?
 - 5,327,301
 - 936,199
-- 1,734,051
+- **1,734,051**
 - 1,342,034
+
+Similarly, I run a SQL query:
+```SQL
+SELECT
+  count(1) 
+FROM 
+  `taxi-rides-ny-454801.zoomcamp.green_tripdata` 
+WHERE
+  filename LIKE 'green_tripdata_2020%.csv';
+```
 
 5) How many rows are there for the `Yellow` Taxi data for the March 2021 CSV file?
 - 1,428,092
 - 706,911
-- 1,925,152
+- **1,925,152**
 - 2,561,031
+
+```SQL
+SELECT
+  count(1) 
+FROM 
+  `taxi-rides-ny-454801.zoomcamp.yellow_tripdata` 
+WHERE
+  filename = 'yellow_tripdata_2021-03.csv';
+```
 
 6) How would you configure the timezone to New York in a Schedule trigger?
 - Add a `timezone` property set to `EST` in the `Schedule` trigger configuration  
-- Add a `timezone` property set to `America/New_York` in the `Schedule` trigger configuration
+- **Add a `timezone` property set to `America/New_York` in the `Schedule` trigger configuration**
 - Add a `timezone` property set to `UTC-5` in the `Schedule` trigger configuration
 - Add a `location` property set to `New_York` in the `Schedule` trigger configuration  
 

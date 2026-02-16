@@ -8,13 +8,13 @@ import time
 
 
 # Change this to your bucket name
-BUCKET_NAME = "dezoomcamp_hw3_2025"
+BUCKET_NAME = "syz_dezoomcamp_w3"
 
-# If you authenticated through the GCP SDK you can comment out these two lines
-CREDENTIALS_FILE = "gcs.json"
-client = storage.Client.from_service_account_json(CREDENTIALS_FILE)
+# # If you authenticated through the GCP SDK you can comment out these two lines
+# CREDENTIALS_FILE = "gcs.json"
+# client = storage.Client.from_service_account_json(CREDENTIALS_FILE)
 # If commented initialize client with the following
-# client = storage.Client(project='zoomcamp-mod3-datawarehouse')
+client = storage.Client(project='taxi-rides-ny-454801')
 
 
 BASE_URL = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2024-"

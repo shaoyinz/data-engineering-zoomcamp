@@ -18,9 +18,10 @@ Pre-reqs:
 load_dotenv()
 
 # services = ['fhv','green','yellow']
-init_url = "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/"
-# if not done in .env, switch out the default bucketname
-BUCKET = os.environ.get("GCP_GCS_BUCKET", "dtc-data-lake-bucketname")
+init_url = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/'
+# switch out the bucketname
+# BUCKET = os.environ.get("GCP_GCS_BUCKET", "dtc-data-lake-bucketname")
+BUCKET = "syz_dezoomcamp_w3"
 
 
 def upload_to_gcs(bucket, object_name, local_file):
@@ -94,9 +95,4 @@ def web_to_gcs(year, service):
         print(f"GCS: {service}/{file_name}")
 
 
-web_to_gcs("2019", "green")
-web_to_gcs("2020", "green")
-web_to_gcs("2021", "green")  # fail when reach 08 (normal, file not in github :)
-# web_to_gcs("2019", "yellow")
-# web_to_gcs("2020", "yellow")
-# web_to_gcs("2021", "yellow") # fail when reach 08 (normal, file not in github :)
+web_to_gcs(2019, 'fhv')

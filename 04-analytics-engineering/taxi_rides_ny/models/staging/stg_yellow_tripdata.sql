@@ -1,5 +1,7 @@
 with source as (
     select * from {{ source('raw', 'yellow_tripdata') }}
+    where tpep_pickup_datetime >= '2019-01-01'
+      and tpep_pickup_datetime < '2021-01-01'
 ),
 
 renamed as (
